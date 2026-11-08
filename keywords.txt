@@ -1,0 +1,29 @@
+#######################################
+# Syntax Coloring Map for Ws2812Universal
+#######################################
+
+# Datatypes (KEYWORD1)
+Ws2812Universal	KEYWORD1
+Ws2812Bus	KEYWORD1
+Ws2812BusConfig	KEYWORD1
+Ws2812ConfigProvider	KEYWORD1
+Ws2812Init	KEYWORD1
+
+# Methods and functions (KEYWORD2)
+begin	KEYWORD2
+bus	KEYWORD2
+setPixel	KEYWORD2
+fill	KEYWORD2
+clear	KEYWORD2
+show	KEYWORD2
+busy	KEYWORD2
+waitDone	KEYWORD2
+isValid	KEYWORD2
+numLeds	KEYWORD2
+channel	KEYWORD2
+busCount	KEYWORD2
+busConfig	KEYWORD2
+
+# Constants (LITERAL1)
+RMT_CHANNEL_MAX	LITERAL1
+GPIO_NUM_NC	LITERAL1

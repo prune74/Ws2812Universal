@@ -1,0 +1,52 @@
+{
+  "name": "Ws2812Universal",
+  "version": "1.0.0",
+  "description": "Bibliothèque WS2812 universelle pour ESP32 : émission RMT non bloquante (pas de bit-banging, aucune interruption coupée), configuration matérielle externalisée (Provider) et cohabitation avec les canaux RMT du DCC, pour l'architecture Chemins de Fer du Chablais (CFC).",
+  "keywords": [
+    "ws2812",
+    "neopixel",
+    "esp32",
+    "rmt",
+    "led",
+    "non-blocking",
+    "dcc",
+    "model-railroad"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/prune74/Ws2812Universal.git"
+  },
+  "authors": [
+    {
+      "name": "Bruno Rivera",
+      "url": "https://github.com/prune74",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/prune74/Ws2812Universal",
+  "frameworks": [
+    "arduino"
+  ],
+  "platforms": [
+    "espressif32"
+  ],
+  "headers": [
+    "Ws2812Universal.h"
+  ],
+  "build": {
+    "includeDir": "src"
+  },
+  "export": {
+    "include": [
+      "src",
+      "examples",
+      "README.md",
+      "LICENSE",
+      "library.json",
+      "library.properties",
+      "keywords.txt"
+    ]
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,36 @@
+# CI Ws2812Universal — compilation des exemples avec PlatformIO
+# Cible : espressif32@6.9.0 (arduino-esp32 2.0.x), comme le projet CFC
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        example:
+          - Examples/BasicExample
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          pip install platformio
+
+      - name: Build example (${{ matrix.example }})
+        run: |
+          pio ci --lib="." --board=esp32dev \
+            --project-option="platform=espressif32@6.9.0" \
+            --project-option="framework=arduino" \
+            ${{ matrix.example }}
