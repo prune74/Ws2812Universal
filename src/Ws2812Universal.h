@@ -9,8 +9,8 @@
  *   • Canal RMT configurable par l'application (cohabitation DCC)
  *   • Multi-bus : Ws2812Bus::bus(index), jamais NULL, jamais de crash
  *   • Configuration matérielle externalisée (Provider), comme CanUniversal
- *   • Cible : arduino-esp32 2.0.x (espressif32@6.9.0)
- *   • Usage : 1 LED (convertisseur) ou 9 LED (hub)
+ *   • Nombre de LED libre, fourni par la configuration
+ *     (3 sur le convertisseur, 9 sur le hub, toute valeur acceptée)
  *
  * Exemple :
  *

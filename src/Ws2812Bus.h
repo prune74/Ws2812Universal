@@ -9,7 +9,8 @@
  *   • registre statique : Ws2812Bus::bus(index) renvoie TOUJOURS une
  *     référence valide (jamais NULL, jamais de crash),
  *   • un bus absent, désactivé ou mal câblé est simplement « invalide »,
- *   • configuration matérielle externalisée (Provider).
+ *   • nombre de LED libre (3 sur le convertisseur, 9 sur le hub,
+ *     toute autre valeur acceptée) — jamais codé en dur ;
  *
  * Implémentation : driver RMT legacy (IDF 4.4 / arduino-esp32 2.0.x).
  * Pas de bit-banging, aucune interruption coupée : le matériel RMT et

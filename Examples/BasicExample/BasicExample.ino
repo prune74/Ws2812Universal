@@ -4,8 +4,8 @@
  * Le module fournit sa configuration matérielle via le pattern
  * Provider : la bibliothèque ne connaît ni les pins, ni les canaux.
  *
- * Convertisseur : 1 LED sur GPIO 18.
- * Hub : passer numLeds à 9.
+ * Convertisseur : 3 LED sur GPIO 18 (nombre libre).
+ * Hub : changer numLeds dans la config, aucune autre modification.
  *
  * ⚠️ Cohabitation DCC : le canal RMT choisi ici (7) doit rester
  * distinct de ceux utilisés par le DCC.
@@ -17,11 +17,11 @@
 
 class MyWs2812Config : public Ws2812ConfigProvider {
 
-    // Bus 0 : 1 LED (convertisseur) sur GPIO 18, canal RMT 7
+    // Bus 0 : 3 LED (convertisseur) sur GPIO 18, canal RMT 7
     const Ws2812BusConfig bus0 {
         /* enabled   */ true,
         /* pin       */ GPIO_NUM_18,
-        /* numLeds   */ 1,
+        /* numLeds   */ 3,
         /* rmtChan   */ RMT_CHANNEL_7,   // cohabitation DCC
         /* brightness*/ 255
     };

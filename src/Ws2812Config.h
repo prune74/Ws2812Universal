@@ -21,7 +21,7 @@ struct Ws2812BusConfig {
 
     bool enabled;            // Active ou désactive le bus
     gpio_num_t pin;          // Broche de données des LED
-    uint16_t numLeds;        // Nombre de LED (1 convertisseur, 9 hub)
+    uint16_t numLeds;        // Nombre de LED, libre (3 convertisseur, 9 hub…)
     rmt_channel_t rmtChannel; // Canal RMT (cohabitation DCC)
     uint8_t brightness;      // Luminosité globale 0..255
 

@@ -6,7 +6,7 @@
 
 Elle fournit une abstraction unifiée permettant de :
 
-- piloter un ou plusieurs bus de LED WS2812 (1 LED sur le convertisseur, 9 sur le hub)
+- piloter un ou plusieurs bus de LED WS2812 (3 LED sur le convertisseur, 9 sur le hub — le nombre est libre et fourni par la configuration)
 - émettre par le périphérique **RMT matériel**, de façon **non bloquante**
 - **aucun bit-banging, aucune interruption coupée** — le DCC tourne en parallèle
 - choisir le **canal RMT** de chaque bus pour cohabiter avec ceux du DCC
@@ -117,7 +117,7 @@ Ws2812Universal/
 ## 🎯 Compatibilité
 
 - **Cible** : ESP32, arduino-esp32 2.0.x (`espressif32@6.9.0`)
-- **Usage** : 1 LED (convertisseur) ou 9 LED (hub)
+- **Usage** : nombre de LED libre (3 sur le convertisseur, 9 sur le hub, toute autre valeur acceptée)
 
 ## 📜 Licence
 
