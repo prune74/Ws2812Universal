@@ -15,6 +15,7 @@ jobs:
       matrix:
         example:
           - Examples/BasicExample
+          - Examples/HubExample
     steps:
       - uses: actions/checkout@v4
 

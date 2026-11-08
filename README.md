@@ -73,7 +73,7 @@ Ajoutez ce dépôt via le Gestionnaire de bibliothèque ou copiez-le dans votre 
 
 // Configuration fournie par le module (pattern Provider)
 class MyConfig : public Ws2812ConfigProvider {
-    const Ws2812BusConfig bus0 { true, GPIO_NUM_18, 1, RMT_CHANNEL_7, 255 };
+    const Ws2812BusConfig bus0 { true, GPIO_NUM_18, 3, RMT_CHANNEL_7, 255 };
 public:
     uint8_t busCount() const override { return 1; }
     const Ws2812BusConfig &busConfig(uint8_t) const override { return bus0; }
@@ -105,8 +105,10 @@ Ws2812Universal/
  │    ├── Ws2812Init.h
  │    └── Ws2812Universal.h      ← en-tête principal
  ├── examples/
- │    └── BasicExample/
- │         └── BasicExample.ino
+ │    ├── BasicExample/
+ │    │    └── BasicExample.ino
+ │    └── HubExample/
+ │         └── HubExample.ino
  ├── library.json                ← registre PlatformIO
  ├── library.properties          ← IDE Arduino
  ├── keywords.txt
