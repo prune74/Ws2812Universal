@@ -1,27 +1,16 @@
 #pragma once
 
 /**
- * 💡 Ws2812Universal — Bibliothèque WS2812 pour ESP32 (architecture CFC)
- * Miroir de CanUniversal.h : header parapluie, inclure ce seul fichier.
- *
- *   • Émission RMT non bloquante (pas de bit-banging,
- *     aucune interruption coupée — le DCC tourne en parallèle)
- *   • Canal RMT configurable par l'application (cohabitation DCC)
+ * 💡 Ws2812Universal v1.1.0 — WS2812 pour ESP32 (architecture CFC)
+ *   • Émission RMT non bloquante, canal EXPLICITE par l'application
  *   • Multi-bus : Ws2812Bus::bus(index), jamais NULL, jamais de crash
- *   • Configuration matérielle externalisée (Provider), comme CanUniversal
- *   • Nombre de LED libre, fourni par la configuration
- *     (3 sur le convertisseur, 9 sur le hub, toute valeur acceptée)
- *
- * Exemple :
- *
- *   class MyConfig : public Ws2812ConfigProvider { ... };
- *   MyConfig config;
- *   Ws2812Init::begin(config);        // initialisation tolérante
- *   Ws2812Bus &bus = Ws2812Bus::bus(0);
- *   bus.fill(0x000020);
- *   bus.show();                       // non bloquant
+ *   • v1.1.0 : Ws2812All (showAll/setBrightnessAll/droppedShows),
+ *     WsCrgb (compatible CRGB), Ws2812FastLED (façade FastLED-like,
+ *     buffers externes zéro copie), luminosité à chaud
  */
-
 #include "Ws2812Config.h"
 #include "Ws2812Bus.h"
 #include "Ws2812Init.h"
+#include "Ws2812All.h"
+#include "WsCrgb.h"
+#include "Ws2812FastLED.h"

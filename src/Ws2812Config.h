@@ -5,71 +5,56 @@
 #include <driver/rmt.h>
 
 /**
- * ============================================================================
- *  Ws2812BusConfig
- * ============================================================================
- *  Structure décrivant la configuration d'un bus WS2812 unique.
- *  Miroir de CanBusConfig (CanUniversal) : la configuration est
- *  fournie par l'application, jamais codée en dur dans la bibliothèque.
- *
- *  ⚠️ Cohabitation DCC : le canal RMT est explicite. Le DCC occupe
- *  ses propres canaux RMT ; l'application doit choisir ici un canal
- *  distinct (défaut : RMT_CHANNEL_7, le plus haut de l'ESP32).
- * ============================================================================
+ * Ws2812BusConfig — configuration d'un bus WS2812 (miroir de CanBusConfig).
+ * v1.1.0 : champ extRgb888 (buffer externe de l'application, zéro copie).
  */
 struct Ws2812BusConfig {
 
-    bool enabled;            // Active ou désactive le bus
-    gpio_num_t pin;          // Broche de données des LED
-    uint16_t numLeds;        // Nombre de LED, libre (3 convertisseur, 9 hub…)
-    rmt_channel_t rmtChannel; // Canal RMT (cohabitation DCC)
-    uint8_t brightness;      // Luminosité globale 0..255
+    bool enabled;
+    gpio_num_t pin;
+    uint16_t numLeds;
+    rmt_channel_t rmtChannel;
+    uint8_t brightness;      // 0..255 — appliquée à l'encodage (v1.1.0)
 
-    // Constructeur par défaut sécurisé (bus désactivé)
+    // v1.1.0 : buffer externe {R,G,B}×numLeds possédé par l'application
+    // (style FastLED). nullptr = buffer interne alloué par la lib.
+    uint8_t *extRgb888;
+
     Ws2812BusConfig()
         : enabled(false),
           pin(GPIO_NUM_NC),
           numLeds(0),
           rmtChannel(RMT_CHANNEL_MAX),
-          brightness(255)
+          brightness(255),
+          extRgb888(nullptr)
     {}
 
-    // Constructeur complet — permet l'usage de { ... } dans la config
-    // maître de l'application
     Ws2812BusConfig(
         bool enabled,
         gpio_num_t pin,
         uint16_t numLeds,
         rmt_channel_t rmtChannel = RMT_CHANNEL_7,
-        uint8_t brightness = 255
+        uint8_t brightness = 255,
+        uint8_t *extRgb888 = nullptr
     )
         : enabled(enabled),
           pin(pin),
           numLeds(numLeds),
           rmtChannel(rmtChannel),
-          brightness(brightness)
+          brightness(brightness),
+          extRgb888(extRgb888)
     {}
 };
 
 /**
- * ============================================================================
- *  Ws2812ConfigProvider
- * ============================================================================
- *  Miroir de CanConfigProvider : chaque module applicatif fournit sa
- *  propre configuration matérielle.
- *
- *  👉 Aucun code matériel dans la bibliothèque : ni pins, ni nombre de
- *     LED, ni canal RMT — tout est externalisé dans les modules CFC.
- * ============================================================================
+ * Ws2812ConfigProvider — la configuration matérielle est fournie par
+ * l'application (pins, LED, canaux RMT) : rien de codé en dur ici.
  */
 class Ws2812ConfigProvider
 {
 public:
     virtual ~Ws2812ConfigProvider() {}
 
-    // Nombre de bus WS2812 déclarés par l'application
     virtual uint8_t busCount() const = 0;
-
-    // Configuration du bus d'index donné (0..busCount()-1)
     virtual const Ws2812BusConfig &busConfig(uint8_t index) const = 0;
 };

@@ -4,77 +4,60 @@
 #include "Ws2812Config.h"
 
 /**
- * 🚌 Ws2812Bus — Abstraction multi-bus WS2812, émission RMT non bloquante.
- * Miroir de CanBus (CanUniversal) :
- *   • registre statique : Ws2812Bus::bus(index) renvoie TOUJOURS une
- *     référence valide (jamais NULL, jamais de crash),
- *   • un bus absent, désactivé ou mal câblé est simplement « invalide »,
- *   • nombre de LED libre (3 sur le convertisseur, 9 sur le hub,
- *     toute autre valeur acceptée) — jamais codé en dur ;
- *
- * Implémentation : driver RMT legacy (IDF 4.4 / arduino-esp32 2.0.x).
- * Pas de bit-banging, aucune interruption coupée : le matériel RMT et
- * le ring buffer du driver font tout le travail, y compris pendant
- * que le DCC tourne sur ses propres canaux.
+ * Ws2812Bus — abstraction multi-bus WS2812, émission RMT non bloquante.
+ * v1.1.0 :
+ *   • framebuffer RAW (luminosité appliquée à l'ENCODAGE → réglable à chaud)
+ *   • setBrightness() — visible au prochain show(), sans réécriture
+ *   • buffer externe RGB888 possible (extRgb888 de la config)
  */
 class Ws2812Bus
 {
 public:
 
-    // --- Registre statique (comme CanBus) ---
-
-    // Accès sécurisé à un bus par index : la référence est toujours
-    // valide ; l'instance est invalide si le bus est absent/en erreur.
     static Ws2812Bus &bus(uint8_t index);
 
-    // Bus initialisé avec succès ?
     bool isValid() const { return _valid; }
 
-    // --- Écriture du framebuffer ---
+    // --- Framebuffer (couleurs RAW, sans luminosité) ---
 
-    // Fixe la couleur d'une LED (0x00RRGGBB). Sans effet si bus
-    // invalide ou index hors limites — jamais de crash.
-    void setPixel(uint16_t index, uint32_t rgb);
-
-    // Remplit tout le bus avec une couleur.
+    void setPixel(uint16_t index, uint32_t rgb);  // 0x00RRGGBB
     void fill(uint32_t rgb);
-
-    // Éteint tout le bus (framebuffer à zéro, sans émettre).
     void clear();
 
     // --- Émission ---
 
-    // Lance l'émission du framebuffer. NON BLOQUANT : la trame est
-    // copiée dans le ring buffer RMT et la main est rendue immédiatement.
-    // Retourne false si bus invalide ou trame précédente encore en cours.
-    bool show();
-
-    // Une émission est-elle en cours ? (sonde, non bloquant)
+    bool show();       // non bloquant ; false si busy/invalid
     bool busy();
-
-    // Attend la fin de l'émission en cours (bloquant, usage libre).
     void waitDone();
 
-    // --- Accesseurs ---
+    // --- v1.1.0 : luminosité à chaud (appliquée au prochain show()) ---
+    void setBrightness(uint8_t b) { _cfg.brightness = b; }
+    uint8_t brightness() const { return _cfg.brightness; }
 
+    // --- Accesseurs ---
     uint16_t numLeds() const { return _cfg.numLeds; }
     rmt_channel_t channel() const { return _cfg.rmtChannel; }
 
+    // Registre (miroir CanBus) — accès protégé pour Ws2812All
+    static uint8_t count();   // nb de bus valides (parmi 8)
+
 private:
 
-    // Seul Ws2812Init crée les instances (pattern CanBus)
     friend class Ws2812Init;
+    friend class Ws2812FastLED;   // v1.1.0 : la façade crée des bus
 
-    Ws2812Bus();                          // instance invalide
+    Ws2812Bus();
     bool begin(const Ws2812BusConfig &cfg);
+
+    // Lecture RAW d'une LED (r,g,g) selon le mode interne/externe
+    void _readPixel(uint16_t index, uint8_t &r, uint8_t &g, uint8_t &b) const;
 
     bool _valid = false;
     Ws2812BusConfig _cfg;
 
-    // Framebuffer GRB (ordre natif WS2812), luminosité déjà appliquée
-    uint32_t *_buffer = nullptr;
+    uint32_t *_buffer = nullptr;   // interne : RAW RGB (0x00RRGGBB)
+    uint8_t *_ext = nullptr;       // externe : {R,G,B}×numLeds (non possédé)
 
-    // Symboles RMT pré-alloués (32 bits/LED + reset)
     rmt_item32_t *_items = nullptr;
     size_t _itemCount = 0;
 

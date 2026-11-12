@@ -1,6 +1,6 @@
 {
   "name": "Ws2812Universal",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Bibliothèque WS2812 universelle pour ESP32 : émission RMT non bloquante (pas de bit-banging, aucune interruption coupée), configuration matérielle externalisée (Provider) et cohabitation avec les canaux RMT du DCC, pour l'architecture Chemins de Fer du Chablais (CFC).",
   "keywords": [
     "ws2812",
