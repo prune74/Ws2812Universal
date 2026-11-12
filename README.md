@@ -12,9 +12,7 @@ Elle fournit une abstraction unifiée permettant de :
 - choisir le **canal RMT** de chaque bus pour cohabiter avec ceux du DCC
 - fournir la configuration matérielle par l'application (Provider)
 
-Cette bibliothèque est utilisée dans :
-
-- l'architecture Chemins de Fer du Chablais (CFC).
+Cette bibliothèque est utilisée dans l'architecture Chemins de Fer du Chablais (CFC) : convertisseur DCC_CAN_RMT-Booster, DCC_HUB_DISTRIB-Booster, CAN_DCC_RMT-Booster_DRV8874 et Extension_CantonController (EXCC).
 
 # ✨ Fonctionnalités principales
 
@@ -37,11 +35,64 @@ Cette bibliothèque est utilisée dans :
 
 ---
 
+## 🆕 Nouveautés v1.1.0
+
+### 🔆 Luminosité à chaud (`setBrightness`)
+
+La luminosité n'est plus « cuite » dans le framebuffer à l'écriture : elle est appliquée **à l'encodage RMT**, au moment du `show()`. Conséquence : `setBrightness()` est réglable à tout moment, effet visible à l'émission suivante, sans réécrire le buffer.
+
+### 🎨 `WsCrgb` — couleur compatible `CRGB` (FastLED)
+
+Structure RGB 3 octets (`r`, `g`, `b`) **binaire-compatible avec le `CRGB` de FastLED** : un tableau `WsCrgb strip[9]` se lit comme un `CRGB strip[9]`. Couleurs nommées via API statique (`WsCrgb::Red()`, `Green()`, `Orange()`…) et `ws_sin8()`, port exact du `sin8` FastLED pour les animations.
+
+### 🚏 `Ws2812All` — opérations globales
+
+`showAll()` (émet sur tous les bus valides, jamais bloquant), `setBrightnessAll()`, `droppedShows()` (diagnostic : shows ignorés parce qu'un bus était occupé).
+
+### 🧱 Buffer externe zéro copie (`extRgb888`)
+
+La config peut pointer vers un buffer `{R,G,B}×numLeds` **possédé par l'application** : la lib l'utilise tel quel (style FastLED), sans allocation ni copie.
+
+### 🎭 Façade `Ws2812FastLED` — migration FastLED en douceur
+
+```cpp
+#include <Ws2812Universal.h>
+
+static WsCrgb stripFeux[9];   // buffer de l'application
+
+void setup() {
+    // pin + canal RMT EXPLICITES + buffer externe : zéro copie
+    Ws2812FastLED::addLeds(PIN_FEUX, RMT_CHANNEL_0, stripFeux, 9);
+    Ws2812FastLED::setBrightness(128);
+    Ws2812FastLED::clear(true);   // efface + émet
+}
+
+void loop() {
+    stripFeux[0] = WsCrgb::Green();   // écriture directe, comme CRGB
+    Ws2812FastLED::show();            // tous les strips, non bloquant
+}
+```
+
+Aucune allocation de canal cachée : chaque strip reçoit **son canal RMT explicitement** — c'est l'application qui décide de la carte des canaux.
+
+---
+
 ## 🧩 Configuration modulaire (Ws2812ConfigProvider)
 
-Chaque module fournit sa propre configuration matérielle (pin, nombre de LED, canal RMT, luminosité).
+Chaque module fournit sa propre configuration matérielle (pin, nombre de LED, canal RMT, luminosité, buffer externe optionnel).
 
 ➡️ **Aucun code matériel dans la bibliothèque**, tout est externalisé dans les modules.
+
+---
+
+## 🗺️ Exemple d'allocation des canaux RMT (EXCC)
+
+| Canal RMT | Usage |
+|---|---|
+| 0 – 6 | 7 strips WS2812 (mâts H/AH, œillets, directions, status) |
+| 7 | DCC régénéré (DccRegen, DRV8874) |
+
+L'attribution vit dans `EXCC_Pins.h` — la bibliothèque ne choisit rien toute seule.
 
 ---
 
@@ -55,8 +106,6 @@ Chaque module fournit sa propre configuration matérielle (pin, nombre de LED, c
 
 ### Via PlatformIO (recommandé)
 
-Dans votre `platformio.ini` :
-
 ```ini
 lib_deps =
     prune74/Ws2812Universal
@@ -66,7 +115,7 @@ lib_deps =
 
 Ajoutez ce dépôt via le Gestionnaire de bibliothèque ou copiez-le dans votre dossier `libraries/`.
 
-## 🚀 Utilisation
+## 🚀 Utilisation (API historique, v1.0 conservée)
 
 ```cpp
 #include <Ws2812Universal.h>
@@ -98,29 +147,25 @@ void loop() {
 ```
 Ws2812Universal/
  ├── src/
- │    ├── Ws2812Bus.cpp
- │    ├── Ws2812Bus.h
- │    ├── Ws2812Config.h
- │    ├── Ws2812Init.cpp
- │    ├── Ws2812Init.h
- │    └── Ws2812Universal.h      ← en-tête principal
- ├── examples/
- │    ├── BasicExample/
- │    │    └── BasicExample.ino
- │    └── HubExample/
- │         └── HubExample.ino
- ├── library.json                ← registre PlatformIO
- ├── library.properties          ← IDE Arduino
- ├── keywords.txt
- ├── LICENSE.txt
- └── README.md
+ │    ├── Ws2812Bus.cpp / .h        ← émission RMT, buffer interne ou externe
+ │    ├── Ws2812Config.h             ← config + Provider (v1.1.0 : extRgb888)
+ │    ├── Ws2812Init.cpp / .h        ← initialisation tolérante
+ │    ├── Ws2812All.cpp / .h         ← v1.1.0 : showAll / setBrightnessAll / droppedShows
+ │    ├── WsCrgb.cpp / .h            ← v1.1.0 : couleur compatible CRGB + ws_sin8
+ │    ├── Ws2812FastLED.cpp / .h     ← v1.1.0 : façade FastLED-like
+ │    └── Ws2812Universal.h          ← en-tête principal
+ ├── Examples/
+ │    ├── BasicExample/             ← API historique (non-régression)
+ │    ├── HubExample/               ← multi-bus, luminosité à chaud
+ │    └── FastLEDCompatExample/     ← façade Ws2812FastLED + WsCrgb
+ ├── library.json / library.properties / keywords.txt / LICENSE.txt / README.md
 ```
 
 ## 🎯 Compatibilité
 
-- **Cible** : ESP32, arduino-esp32 2.0.x (`espressif32@6.9.0`)
+- **Cible** : ESP32, arduino-esp32 2.0.x (`espressif32@6.9.0`), driver RMT legacy
 - **Usage** : nombre de LED libre (3 sur le convertisseur, 9 sur le hub, toute autre valeur acceptée)
 
 ## 📜 Licence
 
-MIT — voir [LICENSE.txt](LICENSE.txt).
+MIT — voir .
